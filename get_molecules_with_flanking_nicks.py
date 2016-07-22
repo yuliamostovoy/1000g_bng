@@ -1,22 +1,16 @@
 import sys
-import copy
+import argparse
 
 def main():
-	if len(sys.argv)!=6:
-		sys.stderr.write("Usage: program.py *.xmap region_start region_end upstream_nicks downstream_nicks\n")
-		sys.exit(1)
+	parser = argparse.ArgumentParser(description="Retrieve molecule IDs for molecules that align to a given area and have a given number of extra nicks up- or downstream (the extra nicks don't necessarily have to be aligned")
+	parser.add_argument('xmap', help='xmap file containing alignment', metavar="xmap_file")
+	parser.add_argument('region_start', help="Start coordinate of region to which molecule must be aligned", type=float)
+	parser.add_argument('region_end', help="End coordinate of region to which molecule must be aligned", type=float)
+	parser.add_argument('upstream_nicks', metavar="num_upstream_nicks", help="Number of nicks that molecule must have upstream of aligned region",type=int)
+	parser.add_argument('downstream_nicks', metavar="num_downstream_nicks", help="Number of nicks that molecule must have downstream of aligned region",type=int)
+	args = parser.parse_args()
 
-	xmap = open(sys.argv[1],'r')
-
-	flanking_nick_number_upstream = sys.argv[4]
-	flanking_nick_number_downstream = sys.argv[5]
-	try:
-		flanking_nick_number_upstream = int(flanking_nick_number_upstream)
-		flanking_nick_number_downstream = int(flanking_nick_number_downstream)
-	except:
-		sys.stderr.write("Error: Nick number must be integer\n")
-		sys.stderr.write("Usage: program.py *.xmap region_start region_end upstream_nicks downstream_nicks\n")
-		sys.exit(1)
+	xmap = open(args.xmap,'r')
 
 	path = '/'.join(sys.argv[1].split('/')[:-1])
 	ref_path, query_path = None, None
@@ -34,11 +28,9 @@ def main():
 
 	query_cmap = open(query_path,'r')
 	ref_cmap = open(ref_path,'r')
-	region_start = int(round(float(sys.argv[2])))
-	region_end = int(round(float(sys.argv[3])))
 
-	if region_start > region_end:
-		region_start, region_end = region_end, region_start
+	if args.region_start > args.region_end:
+		args.region_start, args.region_end = args.region_end, args.region_start
 
 	start_nick, end_nick = None, None
 	for line in ref_cmap:
@@ -46,13 +38,13 @@ def main():
 			continue
 		# 3: nick number, 5: position
 		line = line.strip().split('\t')
-		if start_nick == None and float(line[5]) >= region_start:
+		if start_nick == None and float(line[5]) >= args.region_start:
 			start_nick = int(line[3])
 		if end_nick == None:
-			if float(line[5]) == region_end:
+			if float(line[5]) == args.region_end:
 				end_nick = int(line[3])
 				break
-			elif float(line[5]) > region_end:
+			elif float(line[5]) > args.region_end:
 				end_nick = int(line[3])-1
 				break
 
@@ -85,14 +77,14 @@ def main():
 			query_start, query_end = query_end, query_start
 			flip = True
 		if flip:
-			if query_start <= flanking_nick_number_downstream:
+			if query_start <= args.downstream_nicks:
 				continue
-			if query_end > molecule_nick_counts[mol_id]-flanking_nick_number_upstream:
+			if query_end > molecule_nick_counts[mol_id]-args.upstream_nicks:
 				continue
 		else:
-			if query_start <= flanking_nick_number_upstream:
+			if query_start <= args.upstream_nicks:
 				continue
-			if query_end > molecule_nick_counts[mol_id]-flanking_nick_number_downstream:
+			if query_end > molecule_nick_counts[mol_id]-args.downstream_nicks:
 				continue
 		print mol_id
 

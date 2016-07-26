@@ -3,7 +3,6 @@ Guide to single-molecule evaluation of complex regions:
 1. Identify major SVs at the complex locus using assembled contigs. Create alternate cmaps representing each SV. Note the coordinates of long duplicated regions involved in the SV, if any. (If none, it may not be necessary to do single-molecule analysis because the assembly is likely to be accurate.) For each SV, create a cmap file containing both the reference and the alternate version (with different cmap IDs).
 
 2. Identify molecules that are informative for characterizing the SV. These should be molecules that flank the breakpoint(s) of the SV and contain enough unique nicks to definitively distinguish their position with respect to long duplicated regions. For example, for an inversion mediated by two copies of a duplication, informative molecules should span the entire duplication and contain flanking nicks on both sides of the duplication.
-3. 
   An example from locus 15q13, where an inversion is mediated by duplications at 30406019-30617125 and 32390212-32601693:
   python get_molecules_with_flanking_nicks.py HG03133/contigs/alignmolvref/merge/alignmolvref_contig15.xmap 30406019 30617125 4 4 > HG03133_15q13_inversion
   python get_molecules_with_flanking_nicks.py HG03133/contigs/alignmolvref/merge/alignmolvref_contig15.xmap 32390212 32601693 4 4 >> HG03133_15q13_inversion
